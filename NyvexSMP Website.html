@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NyvexSMP - Ultimate Minecraft Survival Experience</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            purple: '#a855f7',
+                            'purple-dark': '#6b21a8',
+                            emerald: '#10b981',
+                            'emerald-dark': '#047857',
+                            dark: '#0a0914',
+                            'dark-card': '#131126',
+                            'dark-border': '#262242'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        heading: ['Space Grotesk', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'neon-purple': '0 0 25px -5px rgba(168, 85, 247, 0.4)',
+                        'neon-emerald': '0 0 25px -5px rgba(16, 185, 129, 0.4)',
+                        'glow-lg': '0 0 50px -10px rgba(168, 85, 247, 0.3)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Glowing & Grid Background Effects */
+        body {
+            background-color: #0a0914;
+            color: #f3f4f6;
+            overflow-x: hidden;
+        }
+
+        .bg-nebula {
+            background: radial-gradient(circle at 50% 20%, rgba(168, 85, 247, 0.15) 0%, rgba(10, 9, 20, 0) 70%),
+                        radial-gradient(circle at 80% 60%, rgba(16, 185, 129, 0.1) 0%, rgba(10, 9, 20, 0) 60%),
+                        radial-gradient(circle at 20% 80%, rgba(124, 58, 237, 0.12) 0%, rgba(10, 9, 20, 0) 50%);
+        }
+
+        .bg-grid-pattern {
+            background-size: 40px 40px;
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        }
+
+        .text-glow-purple {
+            text-shadow: 0 0 20px rgba(168, 85, 247, 0.6);
+        }
+
+        .text-glow-emerald {
+            text-shadow: 0 0 20px rgba(16, 185, 129, 0.6);
+        }
+
+        .glass-card {
+            background: rgba(19, 17, 38, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(168, 85, 247, 0.15);
+        }
+
+        .glass-card:hover {
+            border-color: rgba(168, 85, 247, 0.4);
+        }
+
+        /* Pulse Animations */
+        @keyframes pulse-slow {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.05); opacity: 1; }
+        }
+        .animate-pulse-slow {
+            animation: pulse-slow 4s infinite ease-in-out;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0a0914;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #262242;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a855f7;
+        }
+    </style>
+</head>
+<body class="bg-nebula font-sans antialiased min-h-screen selection:bg-brand-purple selection:text-white relative">
+
+    <!-- Grid Overlay Background -->
+    <div class="fixed inset-0 bg-grid-pattern pointer-events-none z-0"></div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 ease-out flex items-center gap-3 bg-brand-emerald text-white font-semibold px-5 py-3.5 rounded-xl shadow-neon-emerald">
+        <i class="fa-solid fa-circle-check text-xl"></i>
+        <span id="toast-message">IP copied to clipboard!</span>
+    </div>
+
+    <!-- Navigation Header -->
+    <header class="fixed top-0 left-0 w-full z-40 transition-all duration-300" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <!-- Logo -->
+                <a href="#" class="flex items-center gap-3 group">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-purple to-brand-emerald p-0.5 shadow-neon-purple group-hover:scale-105 transition-transform duration-300">
+                        <div class="w-full h-full bg-brand-dark rounded-[10px] flex items-center justify-center">
+                            <i class="fa-solid fa-cube text-brand-purple text-xl group-hover:text-brand-emerald transition-colors"></i>
+                        </div>
+                    </div>
+                    <span class="font-heading font-black text-2xl tracking-wider text-white">NYVEX<span class="text-brand-purple">SMP</span></span>
+                </a>
+
+                <!-- Desktop Nav Navigation -->
+                <nav class="hidden md:flex items-center gap-8 font-medium text-sm text-gray-300">
+                    <a href="#about" class="hover:text-brand-purple transition-colors">About</a>
+                    <a href="#features" class="hover:text-brand-purple transition-colors">Features</a>
+                    <a href="#how-to-join" class="hover:text-brand-purple transition-colors">How to Join</a>
+                    <a href="#rules" class="hover:text-brand-purple transition-colors">Rules</a>
+                    <a href="#community" class="hover:text-brand-purple transition-colors">Community</a>
+                </nav>
+
+                <!-- Header Actions -->
+                <div class="hidden sm:flex items-center gap-4">
+                    <button onclick="copyIP()" class="px-4 py-2 rounded-lg bg-brand-dark-card border border-brand-dark-border text-xs font-semibold tracking-wider text-gray-300 hover:text-white hover:border-brand-purple transition-all flex items-center gap-2">
+                        <i class="fa-regular fa-copy text-brand-purple"></i>
+                        <span>nyvexsmp.playwithbao.com</span>
+                    </button>
+                    <a href="https://discord.gg/rnCZ68gYU" target="_blank" class="px-5 py-2 rounded-lg bg-gradient-to-r from-brand-purple to-purple-600 hover:from-purple-500 hover:to-purple-700 text-white font-semibold text-sm shadow-neon-purple hover:shadow-glow-lg transition-all flex items-center gap-2">
+                        <i class="fa-brands fa-discord"></i>
+                        <span>Discord</span>
+                    </a>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <button id="mobile-menu-btn" class="md:hidden text-gray-300 hover:text-white focus:outline-none text-2xl p-2">
+                    <i class="fa-solid fa-bars" id="menu-icon"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Dropdown -->
+        <div id="mobile-menu" class="hidden md:hidden bg-brand-dark-card/95 border-b border-brand-dark-border backdrop-blur-xl px-4 pt-2 pb-6 space-y-3">
+            <a href="#about" class="block py-2 text-gray-300 hover:text-brand-purple transition-colors">About</a>
+            <a href="#features" class="block py-2 text-gray-300 hover:text-brand-purple transition-colors">Features</a>
+            <a href="#how-to-join" class="block py-2 text-gray-300 hover:text-brand-purple transition-colors">How to Join</a>
+            <a href="#rules" class="block py-2 text-gray-300 hover:text-brand-purple transition-colors">Rules</a>
+            <a href="#community" class="block py-2 text-gray-300 hover:text-brand-purple transition-colors">Community</a>
+            <div class="pt-4 flex flex-col gap-3">
+                <button onclick="copyIP()" class="w-full py-2.5 rounded-lg bg-brand-dark border border-brand-dark-border text-xs font-semibold text-gray-300 flex items-center justify-center gap-2">
+                    <i class="fa-regular fa-copy text-brand-purple"></i>
+                    <span>nyvexsmp.playwithbao.com</span>
+                </button>
+                <a href="https://discord.gg/rnCZ68gYU" target="_blank" class="w-full py-2.5 rounded-lg bg-brand-purple text-white font-semibold text-sm text-center flex items-center justify-center gap-2">
+                    <i class="fa-brands fa-discord"></i>
+                    <span>Join Discord</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="relative z-10 pt-24">
+        <!-- Hero Section -->
+        <section class="min-h-[85vh] flex items-center justify-center relative px-4 sm:px-6 lg:px-8 py-16">
+            <div class="max-w-5xl mx-auto text-center">
+                
+                <!-- Live Server Badge -->
+                <div class="inline-flex items-center gap-3 px-4 py-2 rounded-full glass-card mb-8 border border-brand-emerald/30 shadow-neon-emerald animate-pulse-slow">
+                    <span class="relative flex h-3 w-3">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-emerald opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-3 w-3 bg-brand-emerald"></span>
+                    </span>
+                    <span class="text-xs sm:text-sm font-semibold tracking-wider text-emerald-400 uppercase">Server Online & Active</span>
+                    <span class="text-gray-500">•</span>
+                    <span class="text-xs sm:text-sm font-medium text-gray-300"><span id="player-count">24</span> / 100 Players</span>
+                </div>
+
+                <!-- Main Headline -->
+                <h1 class="text-5xl sm:text-7xl lg:text-8xl font-black font-heading tracking-tight mb-6 text-white uppercase">
+                    Welcome To <br class="hidden sm:block">
+                    <span class="bg-gradient-to-r from-brand-purple via-purple-400 to-brand-emerald bg-clip-text text-transparent text-glow-purple">
+                        NyvexSMP
+                    </span>
+                </h1>
+
+                <!-- Subtitle / Slogan -->
+                <p class="text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto font-normal leading-relaxed mb-10">
+                    Enter an immersive next-generation Survival Multiplayer realm. Build empires, trade in player-driven economies, unleash custom rewards, and explore endless adventures.
+                </p>
+
+                <!-- Call To Actions -->
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
+                    <!-- Copy IP Hero Button -->
+                    <button onclick="copyIP()" class="w-full sm:w-auto px-8 py-4 rounded-xl bg-gradient-to-r from-brand-purple to-purple-600 hover:from-purple-500 hover:to-purple-700 text-white font-bold text-lg shadow-neon-purple hover:shadow-glow-lg transform hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-3 group">
+                        <i class="fa-solid fa-gamepad text-xl group-hover:rotate-12 transition-transform"></i>
+                        <span>Copy Server IP</span>
+                        <i class="fa-regular fa-copy text-sm opacity-75"></i>
+                    </button>
+
+                    <!-- Discord Hero Button -->
+                    <a href="https://discord.gg/rnCZ68gYU" target="_blank" class="w-full sm:w-auto px-8 py-4 rounded-xl bg-brand-dark-card hover:bg-brand-dark border border-brand-dark-border hover:border-brand-emerald text-white font-bold text-lg shadow-lg hover:shadow-neon-emerald transform hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-3 group">
+                        <i class="fa-brands fa-discord text-2xl text-[#5865F2] group-hover:scale-110 transition-transform"></i>
+                        <span>Join Community</span>
+                    </a>
+                </div>
+
+                <!-- Server Info Widget Preview -->
+                <div class="mt-16 max-w-xl mx-auto glass-card rounded-2xl p-6 shadow-2xl relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-brand-purple to-brand-emerald"></div>
+                    <div class="grid grid-cols-3 gap-4 text-center">
+                        <div>
+                            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">IP Address</p>
+                            <p class="text-xs sm:text-sm font-bold text-white truncate">nyvexsmp.playwithbao.com</p>
+                        </div>
+                        <div class="border-x border-brand-dark-border">
+                            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Ping Latency</p>
+                            <p class="text-xs sm:text-sm font-bold text-brand-emerald flex items-center justify-center gap-1">
+                                <i class="fa-solid fa-signal text-xs"></i> <span id="ping-count">24ms</span>
+                            </p>
+                        </div>
+                        <div>
+                            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Version</p>
+                            <p class="text-xs sm:text-sm font-bold text-brand-purple">1.19 - 1.20.x</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- About / Intro Section -->
+        <section id="about" class="py-20 relative">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                    <div>
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-brand-purple/10 border border-brand-purple/30 text-brand-purple text-xs font-bold uppercase tracking-widest mb-4">
+                            <i class="fa-solid fa-crown"></i> Premium Survival
+                        </div>
+                        <h2 class="text-3xl sm:text-4xl font-heading font-black text-white mb-6">
+                            Redefining What a Survival SMP Can Be.
+                        </h2>
+                        <p class="text-gray-300 leading-relaxed mb-6">
+                            NyvexSMP is engineered for players who crave a seamless, lag-free, and highly engaging Minecraft survival world. Whether you are a solo builder crafting megastructures, or an ambitious trader dominating the market, NyvexSMP provides the ultimate sandbox.
+                        </p>
+                        <ul class="space-y-4 text-gray-300">
+                            <li class="flex items-center gap-3">
+                                <div class="w-6 h-6 rounded-full bg-brand-purple/20 text-brand-purple flex items-center justify-center text-xs">
+                                    <i class="fa-solid fa-check"></i>
+                                </div>
+                                <span>Zero Lag with Optimized 99.9% Server Uptime</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <div class="w-6 h-6 rounded-full bg-brand-emerald/20 text-brand-emerald flex items-center justify-center text-xs">
+                                    <i class="fa-solid fa-check"></i>
+                                </div>
+                                <span>Crossplay Enablement for Java & Bedrock Edition</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <div class="w-6 h-6 rounded-full bg-brand-purple/20 text-brand-purple flex items-center justify-center text-xs">
+                                    <i class="fa-solid fa-check"></i>
+                                </div>
+                                <span>Friendly Staff Team and Fair Play Policy</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Highlight Visual Box -->
+                    <div class="glass-card rounded-2xl p-8 relative overflow-hidden group">
+                        <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-brand-purple/20 rounded-full blur-3xl group-hover:bg-brand-purple/30 transition-all"></div>
+                        <div class="relative z-10 space-y-6">
+                            <div class="flex items-center justify-between border-b border-brand-dark-border pb-4">
+                                <span class="font-heading font-bold text-white text-lg">Server Info Quick Look</span>
+                                <span class="px-2.5 py-1 rounded bg-brand-emerald/20 text-brand-emerald text-xs font-bold">ONLINE</span>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-gray-400">Game Mode</span>
+                                    <span class="text-white font-semibold">Enhanced Survival</span>
+                                </div>
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-gray-400">Main IP</span>
+                                    <span class="text-brand-purple font-mono font-semibold">nyvexsmp.playwithbao.com</span>
+                                </div>
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-gray-400">Bedrock Port</span>
+                                    <span class="text-white font-mono font-semibold">19132 (Default)</span>
+                                </div>
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-gray-400">Discord</span>
+                                    <span class="text-gray-300 font-semibold">discord.gg/rnCZ68gYU</span>
+                                </div>
+                            </div>
+                            <button onclick="copyIP()" class="w-full py-3 rounded-xl bg-brand-purple/20 hover:bg-brand-purple text-brand-purple hover:text-white border border-brand-purple/40 font-bold text-sm transition-all duration-300 flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-link"></i>
+                                <span>Copy Connection Link</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features" class="py-20 relative">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-3xl mx-auto mb-16">
+                    <h2 class="text-xs font-bold text-brand-emerald uppercase tracking-widest mb-3">Why Play NyvexSMP</h2>
+                    <p class="text-3xl sm:text-5xl font-heading font-black text-white">Packed With Custom Features</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    
+                    <!-- Feature Card 1 -->
+                    <div class="glass-card rounded-2xl p-8 hover:-translate-y-2 transition-all duration-300 group">
+                        <div class="w-14 h-14 rounded-2xl bg-brand-purple/10 border border-brand-purple/30 text-brand-purple flex items-center justify-center text-2xl mb-6 group-hover:scale-110 group-hover:bg-brand-purple group-hover:text-white transition-all">
+                            <i class="fa-solid fa-mobile-screen-button"></i>
+                        </div>
+                        <h3 class="text-xl font-heading font-bold text-white mb-3">Crossplay Support</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed">
+                            Play together with friends on both Minecraft Java Edition and Bedrock Edition (PC, Consoles & Mobile devices) effortlessly.
+                        </p>
+                    </div>
+
+                    <!-- Feature Card 2 -->
+                    <div class="glass-card rounded-2xl p-8 hover:-translate-y-2 transition-all duration-300 group">
+                        <div class="w-14 h-14 rounded-2xl bg-brand-emerald/10 border border-brand-emerald/30 text-brand-emerald flex items-center justify-center text-2xl mb-6 group-hover:scale-110 group-hover:bg-brand-emerald group-hover:text-white transition-all">
+                            <i class="fa-solid fa-coins"></i>
+                        </div>
+                        <h3 class="text-xl font-heading font-bold text-white mb-3">Balanced Economy</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed">
+                            Build your wealth with player shops, dynamic auction houses, jobs, and market trades designed to reward dedicated grinding.
+                        </p>
+                    </div>
+
+                    <!-- Feature Card 3 -->
+                    <div class="glass-card rounded-2xl p-8 hover:-translate-y-2 transition-all duration-300 group">
+                        <div class="w-14 h-14 rounded-2xl bg-brand-purple/10 border border-brand-purple/30 text-brand-purple flex items-center justify-center text-2xl mb-6 group-hover:scale-110 group-hover:bg-brand-purple group-hover:text-white transition-all">
+                            <i class="fa-solid fa-box-open"></i>
+                        </div>
+                        <h3 class="text-xl font-heading font-bold text-white mb-3">Custom Crates & Rewards</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed">
+                            Earn key drops, voting keys, and open custom crates filled with legendary gear, rare cosmetics, and unique perks.
+                        </p>
+                    </div>
+
+                    <!-- Feature Card 4 -->
+                    <div class="glass-card rounded-2xl p-8 hover:-translate-y-2 transition-all duration-300 group">
+                        <div class="w-14 h-14 rounded-2xl bg-brand-emerald/10 border border-brand-emerald/30 text-brand-emerald flex items-center justify-center text-2xl mb-6 group-hover:scale-110 group-hover:bg-brand-emerald group-hover:text-white transition-all">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <h3 class="text-xl font-heading font-bold text-white mb-3">Anti-Grief Land Claim</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed">
+                            Protect your land, builds, and chests with intuitive land claiming tools. Build safely knowing your hard work is 100% protected.
+                        </p>
+                    </div>
+
+                    <!-- Feature Card 5 -->
+                    <div class="glass-card rounded-2xl p-8 hover:-translate-y-2 transition-all duration-300 group">
+                        <div class="w-14 h-14 rounded-2xl bg-brand-purple/10 border border-brand-purple/30 text-brand-purple flex items-center justify-center text-2xl mb-6 group-hover:scale-110 group-hover:bg-brand-purple group-hover:text-white transition-all">
+                            <i class="fa-solid fa-calendar-check"></i>
+                        </div>
+                        <h3 class="text-xl font-heading font-bold text-white mb-3">Active Events & Quests</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed">
+                            Participate in weekly community events, parkour challenges, boss fights, and daily quests for bonus loot!
+                        </p>
+                    </div>
+
+                    <!-- Feature Card 6 -->
+                    <div class="glass-card rounded-2xl p-8 hover:-translate-y-2 transition-all duration-300 group">
+                        <div class="w-14 h-14 rounded-2xl bg-brand-emerald/10 border border-brand-emerald/30 text-brand-emerald flex items-center justify-center text-2xl mb-6 group-hover:scale-110 group-hover:bg-brand-emerald group-hover:text-white transition-all">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                        <h3 class="text-xl font-heading font-bold text-white mb-3">Welcoming Community</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed">
+                            Join a friendly, inclusive server with an active Discord server, responsive staff, and passionate player base.
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- How To Join Guide -->
+        <section id="how-to-join" class="py-20 relative">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-3xl mx-auto mb-16">
+                    <h2 class="text-xs font-bold text-brand-purple uppercase tracking-widest mb-3">Step-by-step Guide</h2>
+                    <p class="text-3xl sm:text-5xl font-heading font-black text-white">How To Connect</p>
+                </div>
+
+                <!-- Tabs for Java & Bedrock -->
+                <div class="max-w-4xl mx-auto">
+                    <div class="flex justify-center gap-4 mb-8">
+                        <button id="tab-java-btn" onclick="switchTab('java')" class="px-6 py-3 rounded-xl font-bold text-sm bg-brand-purple text-white shadow-neon-purple transition-all flex items-center gap-2">
+                            <i class="fa-solid fa-desktop"></i>
+                            <span>Java Edition</span>
+                        </button>
+                        <button id="tab-bedrock-btn" onclick="switchTab('bedrock')" class="px-6 py-3 rounded-xl font-bold text-sm bg-brand-dark-card border border-brand-dark-border text-gray-400 hover:text-white transition-all flex items-center gap-2">
+                            <i class="fa-solid fa-mobile-screen"></i>
+                            <span>Bedrock (PE/Console)</span>
+                        </button>
+                    </div>
+
+                    <!-- Java Content -->
+                    <div id="tab-java" class="glass-card rounded-2xl p-8 space-y-6">
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 rounded-full bg-brand-purple/20 text-brand-purple font-bold flex items-center justify-center shrink-0">1</div>
+                            <div>
+                                <h4 class="text-lg font-bold text-white">Launch Minecraft Java Edition</h4>
+                                <p class="text-gray-400 text-sm mt-1">Open your launcher and start Minecraft version 1.19 or higher.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 rounded-full bg-brand-purple/20 text-brand-purple font-bold flex items-center justify-center shrink-0">2</div>
+                            <div>
+                                <h4 class="text-lg font-bold text-white">Navigate to Multiplayer</h4>
+                                <p class="text-gray-400 text-sm mt-1">Click on <strong>Multiplayer</strong> in the main menu and then select <strong>Add Server</strong>.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 rounded-full bg-brand-purple/20 text-brand-purple font-bold flex items-center justify-center shrink-0">3</div>
+                            <div>
+                                <h4 class="text-lg font-bold text-white">Enter Server Details</h4>
+                                <p class="text-gray-400 text-sm mt-1">Set Server Name to <span class="text-brand-purple font-semibold">NyvexSMP</span> and Server Address to:</p>
+                                <div class="mt-3 flex items-center gap-2">
+                                    <input type="text" readonly value="nyvexsmp.playwithbao.com" class="bg-brand-dark border border-brand-dark-border text-white text-sm rounded-lg px-4 py-2 w-full max-w-md font-mono focus:outline-none">
+                                    <button onclick="copyIP()" class="px-4 py-2 bg-brand-purple text-white rounded-lg text-sm font-semibold hover:bg-purple-600 transition-colors">Copy</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bedrock Content (Hidden by default) -->
+                    <div id="tab-bedrock" class="glass-card rounded-2xl p-8 space-y-6 hidden">
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 rounded-full bg-brand-emerald/20 text-brand-emerald font-bold flex items-center justify-center shrink-0">1</div>
+                            <div>
+                                <h4 class="text-lg font-bold text-white">Open Minecraft Bedrock Edition</h4>
+                                <p class="text-gray-400 text-sm mt-1">Launch Minecraft on Mobile, Windows 10/11, Xbox, PlayStation, or Nintendo Switch.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 rounded-full bg-brand-emerald/20 text-brand-emerald font-bold flex items-center justify-center shrink-0">2</div>
+                            <div>
+                                <h4 class="text-lg font-bold text-white">Go to Servers Tab</h4>
+                                <p class="text-gray-400 text-sm mt-1">Click Play, navigate to the <strong>Servers</strong> tab, and click <strong>Add Server</strong>.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 rounded-full bg-brand-emerald/20 text-brand-emerald font-bold flex items-center justify-center shrink-0">3</div>
+                            <div class="w-full">
+                                <h4 class="text-lg font-bold text-white">Fill Server Information</h4>
+                                <div class="mt-3 space-y-3">
+                                    <div>
+                                        <label class="text-xs text-gray-400 block mb-1">Server Address IP</label>
+                                        <input type="text" readonly value="nyvexsmp.playwithbao.com" class="bg-brand-dark border border-brand-dark-border text-white text-sm rounded-lg px-4 py-2 w-full max-w-md font-mono focus:outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="text-xs text-gray-400 block mb-1">Port</label>
+                                        <input type="text" readonly value="19132" class="bg-brand-dark border border-brand-dark-border text-white text-sm rounded-lg px-4 py-2 w-28 font-mono focus:outline-none">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Rules Accordion Section -->
+        <section id="rules" class="py-20 relative">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="text-xs font-bold text-brand-emerald uppercase tracking-widest mb-3">Fair Play Guarantee</h2>
+                    <p class="text-3xl sm:text-5xl font-heading font-black text-white">Server Rules</p>
+                </div>
+
+                <div class="space-y-4">
+                    <!-- Rule 1 -->
+                    <div class="glass-card rounded-xl overflow-hidden transition-all">
+                        <button onclick="toggleAccordion('rule-1')" class="w-full px-6 py-5 text-left font-bold text-white flex justify-between items-center hover:text-brand-purple transition-colors">
+                            <span class="flex items-center gap-3">
+                                <i class="fa-solid fa-gavel text-brand-purple"></i>
+                                <span>1. No Hacking, Cheating, or Exploiting</span>
+                            </span>
+                            <i class="fa-solid fa-chevron-down text-sm transition-transform duration-300" id="icon-rule-1"></i>
+                        </button>
+                        <div id="rule-1" class="hidden px-6 pb-5 text-gray-400 text-sm leading-relaxed border-t border-brand-dark-border/50 pt-3">
+                            The use of hacked clients, X-ray texture packs, automated botting, or exploiting bugs to gain an unfair advantage is strictly prohibited and results in a permanent ban.
+                        </div>
+                    </div>
+
+                    <!-- Rule 2 -->
+                    <div class="glass-card rounded-xl overflow-hidden transition-all">
+                        <button onclick="toggleAccordion('rule-2')" class="w-full px-6 py-5 text-left font-bold text-white flex justify-between items-center hover:text-brand-purple transition-colors">
+                            <span class="flex items-center gap-3">
+                                <i class="fa-solid fa-comments text-brand-emerald"></i>
+                                <span>2. Respectful Chat & Behavior</span>
+                            </span>
+                            <i class="fa-solid fa-chevron-down text-sm transition-transform duration-300" id="icon-rule-2"></i>
+                        </button>
+                        <div id="rule-2" class="hidden px-6 pb-5 text-gray-400 text-sm leading-relaxed border-t border-brand-dark-border/50 pt-3">
+                            Keep chat friendly and civil. Toxic behavior, hate speech, harassment, spamming, and self-promotion/advertising of other servers will not be tolerated.
+                        </div>
+                    </div>
+
+                    <!-- Rule 3 -->
+                    <div class="glass-card rounded-xl overflow-hidden transition-all">
+                        <button onclick="toggleAccordion('rule-3')" class="w-full px-6 py-5 text-left font-bold text-white flex justify-between items-center hover:text-brand-purple transition-colors">
+                            <span class="flex items-center gap-3">
+                                <i class="fa-solid fa-house-shield text-brand-purple"></i>
+                                <span>3. Respect Land Claims & No Unsolicited Griefing</span>
+                            </span>
+                            <i class="fa-solid fa-chevron-down text-sm transition-transform duration-300" id="icon-rule-3"></i>
+                        </button>
+                        <div id="rule-3" class="hidden px-6 pb-5 text-gray-400 text-sm leading-relaxed border-t border-brand-dark-border/50 pt-3">
+                            Respect claimed areas. Griefing or stealing from claimed bases is forbidden. Unclaimed land carries risk, but toxicity is always punishable.
+                        </div>
+                    </div>
+
+                    <!-- Rule 4 -->
+                    <div class="glass-card rounded-xl overflow-hidden transition-all">
+                        <button onclick="toggleAccordion('rule-4')" class="w-full px-6 py-5 text-left font-bold text-white flex justify-between items-center hover:text-brand-purple transition-colors">
+                            <span class="flex items-center gap-3">
+                                <i class="fa-solid fa-handshake text-brand-emerald"></i>
+                                <span>4. Fair Trading Practices</span>
+                            </span>
+                            <i class="fa-solid fa-chevron-down text-sm transition-transform duration-300" id="icon-rule-4"></i>
+                        </button>
+                        <div id="rule-4" class="hidden px-6 pb-5 text-gray-400 text-sm leading-relaxed border-t border-brand-dark-border/50 pt-3">
+                            Scamming players during trades is strictly forbidden. Always use official market mechanics or trusted trade commands.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Discord Banner Banner Callout -->
+        <section id="community" class="py-16 relative">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="relative rounded-3xl overflow-hidden bg-gradient-to-r from-purple-900/50 via-brand-dark-card to-emerald-900/50 border border-brand-purple/30 p-8 sm:p-14 text-center sm:text-left flex flex-col lg:flex-row items-center justify-between gap-8">
+                    <div class="max-w-2xl space-y-4">
+                        <h3 class="text-3xl sm:text-4xl font-heading font-black text-white">
+                            Join The NyvexSMP Discord
+                        </h3>
+                        <p class="text-gray-300 text-base leading-relaxed">
+                            Stay up-to-date with server updates, give suggestions, open support tickets, make friends, and participate in exclusive Discord giveaways!
+                        </p>
+                    </div>
+                    <a href="https://discord.gg/rnCZ68gYU" target="_blank" class="px-8 py-4 rounded-xl bg-[#5865F2] hover:bg-[#4752C4] text-white font-bold text-lg shadow-lg hover:shadow-neon-purple transition-all shrink-0 flex items-center gap-3">
+                        <i class="fa-brands fa-discord text-2xl"></i>
+                        <span>Connect Discord</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-brand-dark-card/80 border-t border-brand-dark-border py-12 relative z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+                <!-- Branding -->
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-brand-purple flex items-center justify-center text-white text-sm font-bold">
+                        <i class="fa-solid fa-cube"></i>
+                    </div>
+                    <span class="font-heading font-black text-xl text-white">NYVEX<span class="text-brand-purple">SMP</span></span>
+                </div>
+
+                <!-- Copyright -->
+                <p class="text-xs text-gray-500 text-center">
+                    &copy; <span id="year"></span> NyvexSMP. All rights reserved. Not affiliated with or endorsed by Mojang AB or Microsoft.
+                </p>
+
+                <!-- Social Links -->
+                <div class="flex items-center gap-4 text-gray-400">
+                    <a href="https://discord.gg/rnCZ68gYU" target="_blank" class="hover:text-brand-purple transition-colors text-lg"><i class="fa-brands fa-discord"></i></a>
+                    <button onclick="copyIP()" class="hover:text-brand-emerald transition-colors text-lg"><i class="fa-solid fa-server"></i></button>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Interactive JavaScript Logic -->
+    <script>
+        // Set dynamic current year
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Copy IP Address to Clipboard with feedback
+        function copyIP() {
+            const ip = "nyvexsmp.playwithbao.com";
+            
+            // Clipboard fallback logic
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(ip);
+            } else {
+                const textArea = document.createElement("textarea");
+                textArea.value = ip;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+            }
+
+            // Show Toast
+            showToast("Copied IP: " + ip);
+        }
+
+        // Show Toast Notification
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            toastMessage.textContent = message;
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        // Switch How-To-Join Tabs
+        function switchTab(tab) {
+            const javaTab = document.getElementById('tab-java');
+            const bedrockTab = document.getElementById('tab-bedrock');
+            const javaBtn = document.getElementById('tab-java-btn');
+            const bedrockBtn = document.getElementById('tab-bedrock-btn');
+
+            if (tab === 'java') {
+                javaTab.classList.remove('hidden');
+                bedrockTab.classList.add('hidden');
+
+                javaBtn.className = "px-6 py-3 rounded-xl font-bold text-sm bg-brand-purple text-white shadow-neon-purple transition-all flex items-center gap-2";
+                bedrockBtn.className = "px-6 py-3 rounded-xl font-bold text-sm bg-brand-dark-card border border-brand-dark-border text-gray-400 hover:text-white transition-all flex items-center gap-2";
+            } else {
+                bedrockTab.classList.remove('hidden');
+                javaTab.classList.add('hidden');
+
+                bedrockBtn.className = "px-6 py-3 rounded-xl font-bold text-sm bg-brand-emerald text-white shadow-neon-emerald transition-all flex items-center gap-2";
+                javaBtn.className = "px-6 py-3 rounded-xl font-bold text-sm bg-brand-dark-card border border-brand-dark-border text-gray-400 hover:text-white transition-all flex items-center gap-2";
+            }
+        }
+
+        // Toggle Rules Accordion
+        function toggleAccordion(id) {
+            const content = document.getElementById(id);
+            const icon = document.getElementById('icon-' + id);
+
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                icon.style.transform = 'rotate(180deg)';
+            } else {
+                content.classList.add('hidden');
+                icon.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        // Mobile Menu Toggle
+        const mobileBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const menuIcon = document.getElementById('menu-icon');
+
+        mobileBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+            if (mobileMenu.classList.contains('hidden')) {
+                menuIcon.className = "fa-solid fa-bars";
+            } else {
+                menuIcon.className = "fa-solid fa-xmark";
+            }
+        });
+
+        // Simulate Dynamic Server Ping & Players
+        setInterval(() => {
+            const playerCountEl = document.getElementById('player-count');
+            const pingCountEl = document.getElementById('ping-count');
+
+            if (playerCountEl && pingCountEl) {
+                // Slight realistic fluctuate
+                const basePlayers = 24;
+                const randomOffset = Math.floor(Math.random() * 5) - 2;
+                playerCountEl.textContent = Math.max(1, basePlayers + randomOffset);
+
+                const basePing = 22;
+                const pingOffset = Math.floor(Math.random() * 6) - 3;
+                pingCountEl.textContent = (basePing + pingOffset) + 'ms';
+            }
+        }, 5000);
+    </script>
+</body>
+</html>
